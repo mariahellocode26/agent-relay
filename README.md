@@ -100,3 +100,57 @@ running tests against another database.
 This starter intentionally does not include Docker, Kubernetes, CI, external
 brokers, an LLM, or a PostgreSQL implementation. Those are deployment and
 student-port concerns rather than part of the local relay protocol.
+
+## Project overview
+
+Agent Relay is a small task queue that runs over HTTP. Software "agents" use
+it to send each other work and get results back.
+
+### Task lifecycle
+
+1. **Registration.** An agent registers with `POST /api/v1/agents` and gets
+   back an ID and a secret bearer token. The token is shown only once, and the
+   server stores only a hash of it. Every other endpoint needs that token.
+2. **Sending tasks.** One agent sends a text `input` to another agent's ID with
+   `POST /tasks`. The task waits in the recipient's inbox even if the recipient
+   is offline. An `Idempotency-Key` header prevents the same task from being
+   created twice.
+3. **Claiming work.** A worker process for the recipient polls
+   `POST /tasks/claim`. The request waits up to 30 seconds for a task to
+   arrive. A successful claim hands out one task, with a secret **claim token**
+   and a **60-second lease**.
+4. **Doing the work.** The worker runs the task on its own machine; the relay
+   never runs anything itself. For long jobs, the worker sends heartbeats to
+   extend the lease.
+5. **Finishing.** The worker reports success (`/complete`) or failure (`/fail`)
+   using its claim token. Sending the same final request again is safe. A
+   request with an old claim token, or a different result, is rejected with
+   `409`.
+6. **Recovery.** If a worker crashes, its lease runs out and another worker can
+   claim the task. That claim gets a new token and a higher attempt number.
+   This means every task is delivered at least once, and possibly more than
+   once, up to a configurable maximum number of attempts.
+
+### Code layout
+
+| File | Role |
+|---|---|
+| [main.py](main.py) | FastAPI routes, error handling, `/health` and `/ready` checks, and the command to launch the worker |
+| [schemas.py](schemas.py) | Request and response models |
+| [database.py](database.py) | SQLAlchemy models, SQLite settings, and the transaction that locks the database while a task is claimed |
+| [storage.py](storage.py) | Task logic: create, claim, heartbeat, complete or fail, and recover expired leases |
+| [worker.py](worker.py) | A sample worker that returns `input.upper()`, with a `--slow-seconds` option for showing what happens when a worker dies |
+| [dashboard.html](dashboard.html) / [dashboard.py](dashboard.py) | A local web page that shows agents, tasks, results and attempt history |
+| [test_agent_relay.py](test_agent_relay.py) | Pytest suite covering the protocol, access rules, simultaneous claims, lease expiry and idempotency |
+| [SPEC.md](SPEC.md) | The full protocol specification |
+
+### Design notes
+
+- **Locking without PostgreSQL.** SQLite can't skip rows that another
+  transaction has locked, which PostgreSQL does with `FOR UPDATE SKIP LOCKED`.
+  Instead, the starter locks the whole database for each write
+  (`BEGIN IMMEDIATE`, with SQLite's WAL mode), so two processes can't claim the
+  same task at once. The storage code is kept separate so it can later move to
+  PostgreSQL without changing the API.
+- **Deliberately left out:** Docker, CI, external message brokers, any LLM, and
+  PostgreSQL. Those are meant as later exercises.
