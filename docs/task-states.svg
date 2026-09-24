@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="280" viewBox="0 0 880 280" role="img" aria-label="Task states: queued becomes processing when claimed. Processing becomes completed or failed when the worker reports. If the lease expires, processing returns to queued when attempts remain, or becomes failed when the fifth attempt expires.">
+          <style>
+:root, svg { --panel:#ffffff; --ink:#1b2530; --muted:#5b6874; --line:#c9d1d6; --tint:#e6ecef; --accent:#b0630a; --accentsoft:#f6e7d3; --ok:#2f7a4f; --bad:#a83a32; }
+@media (prefers-color-scheme: dark) { svg { --panel:#1a2128; --ink:#e2e8ec; --muted:#9aa7b2; --line:#3a4652; --tint:#222b33; --accent:#f0a04b; --accentsoft:#3a2a17; --ok:#6cc28f; --bad:#e8827a; } }
+.bg { fill: var(--panel); }
+text { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; fill: var(--ink); }
+.t-title { font-weight: 600; font-size: 14px; }
+.t-sub { font-size: 12px; fill: var(--muted); }
+.t-mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.t-label { font-size: 12px; fill: var(--muted); }
+.t-accent { fill: var(--accent); font-weight: 500; }
+.box { fill: var(--panel); stroke: var(--ink); stroke-width: 1.25; }
+.box-tint { fill: var(--tint); stroke: var(--line); stroke-width: 1; }
+.zone { fill: none; stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.edge { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.edge-reply { fill: none; stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 5 4; }
+.edge-accent { fill: none; stroke: var(--accent); stroke-width: 1.8; }
+.lifeline { stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 3 4; }
+.act { fill: var(--accentsoft); stroke: var(--accent); stroke-width: 1.2; }
+.st-ok { fill: var(--panel); stroke: var(--ok); stroke-width: 1.6; }
+.st-bad { fill: var(--panel); stroke: var(--bad); stroke-width: 1.6; }
+.st-live { fill: var(--accentsoft); stroke: var(--accent); stroke-width: 1.6; }
+.head { fill: var(--ink); }
+.head-muted { fill: var(--muted); }
+.head-accent { fill: var(--accent); }
+.db-top { fill: var(--tint); stroke: var(--ink); stroke-width: 1.25; }
+</style>
+          <rect class="bg" x="0" y="0" width="880" height="280" rx="6"/>
+          <defs>
+            <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="a3a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-accent"/></marker>
+          </defs>
+
+          <rect class="box" x="50" y="100" width="150" height="50" rx="25"/>
+          <text class="t-title t-mono" x="125" y="130" text-anchor="middle">queued</text>
+
+          <rect class="st-live" x="340" y="100" width="160" height="50" rx="25"/>
+          <text class="t-title t-mono" x="420" y="130" text-anchor="middle">processing</text>
+
+          <rect class="st-ok" x="680" y="30" width="160" height="50" rx="25"/>
+          <text class="t-title t-mono" x="760" y="60" text-anchor="middle">completed</text>
+
+          <rect class="st-bad" x="680" y="170" width="160" height="50" rx="25"/>
+          <text class="t-title t-mono" x="760" y="200" text-anchor="middle">failed</text>
+
+          <!-- queued -> processing -->
+          <line class="edge" x1="200" y1="125" x2="338" y2="125" marker-end="url(#a3)"/>
+          <text class="t-label" x="269" y="116" text-anchor="middle">claimed</text>
+
+          <!-- processing -> completed -->
+          <line class="edge" x1="500" y1="115" x2="678" y2="58" marker-end="url(#a3)"/>
+          <text class="t-label" x="572" y="72" text-anchor="middle">/complete</text>
+
+          <!-- processing -> failed -->
+          <line class="edge" x1="500" y1="135" x2="678" y2="192" marker-end="url(#a3)"/>
+          <text class="t-label" x="600" y="152">/fail (no retry)</text>
+
+          <!-- lease expired, attempts remain -->
+          <path class="edge-accent" d="M400,150 C380,250 170,250 130,152" marker-end="url(#a3a)"/>
+          <text class="t-label t-accent" x="265" y="246" text-anchor="middle">lease expired, attempts left</text>
+
+          <!-- lease expired, attempts exhausted -->
+          <path class="edge-accent" d="M470,150 C520,250 640,250 700,222" marker-end="url(#a3a)"/>
+          <text class="t-label t-accent" x="585" y="262" text-anchor="middle">lease expired on attempt 5</text>
+        </svg>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="470" viewBox="0 0 880 470" role="img" aria-label="Sequence: the worker long-polls for a claim; the sender posts a task and gets a task id; the relay hands the worker the task with a claim token and a 60-second lease; the worker heartbeats while it runs the task, then posts the result; the sender reads the completed task.">
+          <style>
+:root, svg { --panel:#ffffff; --ink:#1b2530; --muted:#5b6874; --line:#c9d1d6; --tint:#e6ecef; --accent:#b0630a; --accentsoft:#f6e7d3; --ok:#2f7a4f; --bad:#a83a32; }
+@media (prefers-color-scheme: dark) { svg { --panel:#1a2128; --ink:#e2e8ec; --muted:#9aa7b2; --line:#3a4652; --tint:#222b33; --accent:#f0a04b; --accentsoft:#3a2a17; --ok:#6cc28f; --bad:#e8827a; } }
+.bg { fill: var(--panel); }
+text { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; fill: var(--ink); }
+.t-title { font-weight: 600; font-size: 14px; }
+.t-sub { font-size: 12px; fill: var(--muted); }
+.t-mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.t-label { font-size: 12px; fill: var(--muted); }
+.t-accent { fill: var(--accent); font-weight: 500; }
+.box { fill: var(--panel); stroke: var(--ink); stroke-width: 1.25; }
+.box-tint { fill: var(--tint); stroke: var(--line); stroke-width: 1; }
+.zone { fill: none; stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.edge { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.edge-reply { fill: none; stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 5 4; }
+.edge-accent { fill: none; stroke: var(--accent); stroke-width: 1.8; }
+.lifeline { stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 3 4; }
+.act { fill: var(--accentsoft); stroke: var(--accent); stroke-width: 1.2; }
+.st-ok { fill: var(--panel); stroke: var(--ok); stroke-width: 1.6; }
+.st-bad { fill: var(--panel); stroke: var(--bad); stroke-width: 1.6; }
+.st-live { fill: var(--accentsoft); stroke: var(--accent); stroke-width: 1.6; }
+.head { fill: var(--ink); }
+.head-muted { fill: var(--muted); }
+.head-accent { fill: var(--accent); }
+.db-top { fill: var(--tint); stroke: var(--ink); stroke-width: 1.25; }
+</style>
+          <rect class="bg" x="0" y="0" width="880" height="470" rx="6"/>
+          <defs>
+            <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="a2m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-muted"/></marker>
+          </defs>
+
+          <!-- headers -->
+          <rect class="box" x="70" y="20" width="140" height="40" rx="4"/>
+          <text class="t-title" x="140" y="45" text-anchor="middle">Sender</text>
+          <rect class="box" x="370" y="20" width="140" height="40" rx="4"/>
+          <text class="t-title" x="440" y="45" text-anchor="middle">Relay</text>
+          <rect class="box" x="670" y="20" width="140" height="40" rx="4"/>
+          <text class="t-title" x="740" y="45" text-anchor="middle">Worker</text>
+
+          <line class="lifeline" x1="140" y1="60" x2="140" y2="455"/>
+          <line class="lifeline" x1="440" y1="60" x2="440" y2="455"/>
+          <line class="lifeline" x1="740" y1="60" x2="740" y2="455"/>
+
+          <!-- 1 worker claim (long poll) -->
+          <line class="edge" x1="740" y1="100" x2="442" y2="100" marker-end="url(#a2)"/>
+          <text class="t-mono" x="590" y="92" text-anchor="middle">POST /tasks/claim</text>
+          <text class="t-label" x="590" y="118" text-anchor="middle">waits up to 30 s for work</text>
+
+          <!-- 2 sender posts task -->
+          <line class="edge" x1="140" y1="150" x2="438" y2="150" marker-end="url(#a2)"/>
+          <text class="t-mono" x="290" y="142" text-anchor="middle">POST /tasks {to, input}</text>
+          <line class="edge-reply" x1="440" y1="180" x2="142" y2="180" marker-end="url(#a2m)"/>
+          <text class="t-label" x="290" y="198" text-anchor="middle">201 · task_id, status queued</text>
+
+          <!-- 3 claim returns -->
+          <line class="edge-reply" x1="440" y1="215" x2="738" y2="215" marker-end="url(#a2m)"/>
+          <text class="t-label" x="590" y="207" text-anchor="middle">200 · input, attempt 1</text>
+          <text class="t-label t-accent" x="590" y="233" text-anchor="middle">claim_token · lease 60 s</text>
+
+          <!-- activation -->
+          <rect class="act" x="734" y="240" width="12" height="120"/>
+          <text class="t-label" x="758" y="300">runs input</text>
+          <text class="t-label" x="758" y="315">on its machine</text>
+
+          <!-- 4 heartbeat -->
+          <line class="edge" x1="734" y1="270" x2="442" y2="270" marker-end="url(#a2)"/>
+          <text class="t-mono" x="590" y="262" text-anchor="middle">POST …/heartbeat</text>
+          <line class="edge-reply" x1="440" y1="296" x2="732" y2="296" marker-end="url(#a2m)"/>
+          <text class="t-label" x="590" y="314" text-anchor="middle">lease pushed to now + 60 s</text>
+
+          <!-- 5 complete -->
+          <line class="edge" x1="734" y1="350" x2="442" y2="350" marker-end="url(#a2)"/>
+          <text class="t-mono" x="590" y="342" text-anchor="middle">POST …/complete</text>
+          <text class="t-label" x="590" y="368" text-anchor="middle">claim_token + output</text>
+
+          <!-- 6 sender reads -->
+          <line class="edge" x1="140" y1="400" x2="438" y2="400" marker-end="url(#a2)"/>
+          <text class="t-mono" x="290" y="392" text-anchor="middle">GET /tasks/{id}</text>
+          <line class="edge-reply" x1="440" y1="430" x2="142" y2="430" marker-end="url(#a2m)"/>
+          <text class="t-label" x="290" y="448" text-anchor="middle">status completed + output</text>
+        </svg>

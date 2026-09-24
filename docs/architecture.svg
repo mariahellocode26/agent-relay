@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Sender agents and the dashboard call the relay's HTTP API. Worker processes for the recipient agent claim tasks and report results through the same API. The relay's storage layer writes to one SQLite file, and a recovery loop requeues tasks whose leases expired.">
+          <style>
+:root, svg { --panel:#ffffff; --ink:#1b2530; --muted:#5b6874; --line:#c9d1d6; --tint:#e6ecef; --accent:#b0630a; --accentsoft:#f6e7d3; --ok:#2f7a4f; --bad:#a83a32; }
+@media (prefers-color-scheme: dark) { svg { --panel:#1a2128; --ink:#e2e8ec; --muted:#9aa7b2; --line:#3a4652; --tint:#222b33; --accent:#f0a04b; --accentsoft:#3a2a17; --ok:#6cc28f; --bad:#e8827a; } }
+.bg { fill: var(--panel); }
+text { font-family: "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; fill: var(--ink); }
+.t-title { font-weight: 600; font-size: 14px; }
+.t-sub { font-size: 12px; fill: var(--muted); }
+.t-mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+.t-label { font-size: 12px; fill: var(--muted); }
+.t-accent { fill: var(--accent); font-weight: 500; }
+.box { fill: var(--panel); stroke: var(--ink); stroke-width: 1.25; }
+.box-tint { fill: var(--tint); stroke: var(--line); stroke-width: 1; }
+.zone { fill: none; stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.edge { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+.edge-reply { fill: none; stroke: var(--muted); stroke-width: 1.3; stroke-dasharray: 5 4; }
+.edge-accent { fill: none; stroke: var(--accent); stroke-width: 1.8; }
+.lifeline { stroke: var(--line); stroke-width: 1.25; stroke-dasharray: 3 4; }
+.act { fill: var(--accentsoft); stroke: var(--accent); stroke-width: 1.2; }
+.st-ok { fill: var(--panel); stroke: var(--ok); stroke-width: 1.6; }
+.st-bad { fill: var(--panel); stroke: var(--bad); stroke-width: 1.6; }
+.st-live { fill: var(--accentsoft); stroke: var(--accent); stroke-width: 1.6; }
+.head { fill: var(--ink); }
+.head-muted { fill: var(--muted); }
+.head-accent { fill: var(--accent); }
+.db-top { fill: var(--tint); stroke: var(--ink); stroke-width: 1.25; }
+</style>
+          <rect class="bg" x="0" y="0" width="880" height="420" rx="6"/>
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+            <marker id="a1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-muted"/></marker>
+            <marker id="a1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head-accent"/></marker>
+          </defs>
+
+          <!-- Sender -->
+          <rect class="box" x="20" y="56" width="170" height="72" rx="4"/>
+          <text class="t-title" x="36" y="84">Sender agent</text>
+          <text class="t-sub" x="36" y="104">any registered agent</text>
+          <text class="t-sub" x="36" y="119">Bearer token</text>
+
+          <!-- Dashboard -->
+          <rect class="box" x="20" y="250" width="170" height="72" rx="4"/>
+          <text class="t-title" x="36" y="278">Dashboard</text>
+          <text class="t-sub" x="36" y="298">browser page at /</text>
+          <text class="t-sub" x="36" y="313">dashboard.html</text>
+
+          <!-- Relay zone -->
+          <rect class="zone" x="262" y="24" width="376" height="376" rx="6"/>
+          <text class="t-label" x="278" y="46">Relay process · uvicorn main:app</text>
+
+          <rect class="box" x="282" y="64" width="210" height="56" rx="4"/>
+          <text class="t-title" x="298" y="88">HTTP API  /api/v1</text>
+          <text class="t-sub t-mono" x="298" y="107">main.py · schemas.py</text>
+
+          <rect class="box" x="282" y="164" width="210" height="56" rx="4"/>
+          <text class="t-title" x="298" y="188">Task logic</text>
+          <text class="t-sub t-mono" x="298" y="207">storage.py</text>
+
+          <rect class="box" x="282" y="264" width="210" height="56" rx="4"/>
+          <text class="t-title" x="298" y="288">Models + transactions</text>
+          <text class="t-sub t-mono" x="298" y="307">database.py</text>
+
+          <rect class="box-tint" x="512" y="164" width="110" height="56" rx="4"/>
+          <text class="t-title" x="526" y="188">Recovery</text>
+          <text class="t-sub" x="526" y="207">every 5 s</text>
+
+          <line class="edge" x1="387" y1="120" x2="387" y2="162" marker-end="url(#a1)"/>
+          <text class="t-label" x="396" y="146">calls</text>
+          <line class="edge" x1="387" y1="220" x2="387" y2="262" marker-end="url(#a1)"/>
+          <text class="t-label" x="396" y="246">BEGIN IMMEDIATE</text>
+          <line class="edge-accent" x1="512" y1="192" x2="494" y2="192" marker-end="url(#a1a)"/>
+          <text class="t-label t-accent" x="526" y="240">requeue or fail</text>
+          <text class="t-label t-accent" x="526" y="255">expired leases</text>
+
+          <!-- Sender -> API -->
+          <line class="edge" x1="190" y1="84" x2="280" y2="84" marker-end="url(#a1)"/>
+          <text class="t-label" x="200" y="76">send task</text>
+          <line class="edge-reply" x1="280" y1="104" x2="192" y2="104" marker-end="url(#a1m)"/>
+          <text class="t-label" x="198" y="121">result</text>
+
+          <!-- Dashboard -> API -->
+          <polyline class="edge" points="190,286 252,286 252,114 280,114" marker-end="url(#a1)"/>
+          <text class="t-label" x="20" y="344">reads agents, tasks,</text>
+          <text class="t-label" x="20" y="359">attempts via the API</text>
+
+          <!-- Worker -->
+          <rect class="box" x="700" y="48" width="160" height="96" rx="4"/>
+          <text class="t-title" x="716" y="74">Worker process</text>
+          <text class="t-sub" x="716" y="94">recipient agent</text>
+          <text class="t-sub t-mono" x="716" y="112">worker.py</text>
+          <text class="t-sub" x="716" y="130">runs task locally</text>
+
+          <line class="edge" x1="700" y1="78" x2="494" y2="78" marker-end="url(#a1)"/>
+          <text class="t-label" x="510" y="70">claim · heartbeat · finish</text>
+          <line class="edge-reply" x1="494" y1="104" x2="698" y2="104" marker-end="url(#a1m)"/>
+          <text class="t-label t-accent" x="510" y="124">task + claim token</text>
+
+          <!-- SQLite -->
+          <path class="box" d="M700,262 v96 a80,14 0 0 0 160,0 v-96"/>
+          <ellipse class="db-top" cx="780" cy="262" rx="80" ry="14"/>
+          <text class="t-title" x="780" y="298" text-anchor="middle">SQLite</text>
+          <text class="t-sub t-mono" x="780" y="317" text-anchor="middle">agent-relay.db</text>
+          <text class="t-sub" x="780" y="336" text-anchor="middle">agents · tasks · attempts</text>
+
+          <line class="edge" x1="492" y1="292" x2="698" y2="292" marker-end="url(#a1)"/>
+          <text class="t-label" x="510" y="284">SQL, WAL mode</text>
+        </svg>

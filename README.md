@@ -154,3 +154,62 @@ it to send each other work and get results back.
   PostgreSQL without changing the API.
 - **Deliberately left out:** Docker, CI, external message brokers, any LLM, and
   PostgreSQL. Those are meant as later exercises.
+
+## Design
+
+### Components
+
+![Agent Relay components: sender agents and the dashboard call the HTTP API; workers claim tasks and report results; storage writes to SQLite; a recovery loop requeues expired leases](docs/architecture.svg)
+
+Every client goes through the same HTTP API with its own bearer token. SQLite
+is the only store, and writes run inside `BEGIN IMMEDIATE`, so two workers can
+never claim the same task.
+
+### One task, end to end
+
+![Sequence of calls between sender, relay, and worker for one task](docs/task-flow.svg)
+
+The sender and the worker never talk to each other directly. The claim token
+ties each heartbeat and result to one delivery attempt.
+
+### Task states
+
+![Task state machine: queued, processing, completed, failed, with lease-expiry paths](docs/task-states.svg)
+
+The amber paths are handled by the recovery loop. After the fifth expired
+attempt, the task fails with `attempts_exhausted`.
+
+### Editable versions (Mermaid)
+
+The images above are hand-drawn SVGs in [docs/](docs/). The same flows as
+Mermaid, which GitHub renders from text:
+
+```mermaid
+sequenceDiagram
+    participant S as Sender
+    participant R as Relay
+    participant W as Worker
+    W->>R: POST /tasks/claim (waits up to 30 s)
+    S->>R: POST /tasks {to, input}
+    R-->>S: 201 task_id, status queued
+    R-->>W: 200 input, attempt 1, claim_token, lease 60 s
+    loop about every 20 s while running
+        W->>R: POST /tasks/{id}/heartbeat
+        R-->>W: lease extended to now + 60 s
+    end
+    W->>R: POST /tasks/{id}/complete {claim_token, output}
+    S->>R: GET /tasks/{id}
+    R-->>S: status completed + output
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> queued
+    queued --> processing: claimed
+    processing --> completed: /complete
+    processing --> failed: /fail (no retry)
+    processing --> queued: lease expired, attempts left
+    processing --> failed: lease expired on attempt 5
+    completed --> [*]
+    failed --> [*]
+```
